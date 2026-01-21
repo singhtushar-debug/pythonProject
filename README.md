@@ -8,7 +8,7 @@ A learning project that includes CRUD(Create , Read , Update , Delete) APIs buil
    * **uv**: Modern Python package manager.
 
 ## Requirements
-   * **Python 3.11+**.
+   * **Python 3.14+**.
    * **uv**: If not installed,run: `pip install uv`.
 
 ## Installation & Setup
@@ -16,7 +16,7 @@ A learning project that includes CRUD(Create , Read , Update , Delete) APIs buil
 
      **Run:**  `git clone https://github.com/singhtushar-debug/pythonProject.git `
 
-     **Run:**  `cd pythonPorject`
+     **Run:**  `cd pythonProject`
 
   * **Sync dependencies:**
 
