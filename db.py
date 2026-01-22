@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker
 
 db_url = "postgresql://postgres:PGtushar123@localhost:5432/ProductInventory"
 engine = create_engine(db_url)
-session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+session = sessionmaker(autocommit=False, autoflush=True, bind=engine)
 
 
 def get_db():

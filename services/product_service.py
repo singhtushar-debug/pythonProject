@@ -1,5 +1,6 @@
 from models import Product
 from sqlalchemy.orm import Session
+from sqlalchemy import select, update
 
 # from sqlalchemy import select
 from database_models import ProductDB
@@ -16,9 +17,8 @@ class ProductService:
         Returns:
                 List[Products]: A list containing all product records.
         """
-        # result = db.execute(select(ProductDB))
-        # return result.scalars().all()
-        return db.query(ProductDB).all()
+        result = db.execute(select(ProductDB))
+        return result.scalars().all()
 
     def get_product_by_id(self, id: int, db: Session):
         """
@@ -28,8 +28,7 @@ class ProductService:
         Returns:
             Product: The matching product object if found,otherwrise returns NULL.
         """
-        # return db.get(ProductDB,id)
-        return db.query(ProductDB).filter(ProductDB.id == id).first()
+        return db.get(ProductDB, id)
 
     def add_product(self, product: Product, db: Session):
         """
@@ -57,15 +56,16 @@ class ProductService:
             Product: The updated prodcut if successfull,otherwise returns NULL.
 
         """
-        db_product = self.get_product_by_id(id, db)
-        if db_product:
-            db_product.name = product.name
-            db_product.description = product.description
-            db_product.price = product.price
-            db_product.quantity = product.quantity
-            db.commit()
-            db.refresh(db_product)
-        return db_product
+
+        upd_stmt = (
+            update(ProductDB)
+            .where(ProductDB.id == id)
+            .values(**product.model_dump())
+            .returning(ProductDB)
+        )
+        result = db.execute(upd_stmt)
+        db.commit()
+        return result.scalar_one_or_none()
 
     def delete_product(self, id: int, db: Session):
         """

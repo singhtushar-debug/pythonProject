@@ -6,7 +6,7 @@ from db import get_db, engine
 import database_models
 import uvicorn
 
-#create tables
+# create tables
 database_models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
