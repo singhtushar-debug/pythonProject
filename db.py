@@ -1,6 +1,13 @@
-# from sqlalchemy import create_engine
-# from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
-# db_url = ""
-# engine = create_engine(db_url)
-# session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+db_url = "postgresql://postgres:PGtushar123@localhost:5432/ProductInventory"
+engine = create_engine(db_url)
+session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+
+def get_db():
+    db = session()
+    yield db
+    db.close()

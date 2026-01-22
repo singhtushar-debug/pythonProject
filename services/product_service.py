@@ -1,5 +1,8 @@
 from models import Product
-from typing import List
+from sqlalchemy.orm import Session
+
+# from sqlalchemy import select
+from database_models import ProductDB
 
 
 class ProductService:
@@ -7,49 +10,28 @@ class ProductService:
     Provides business logic for managing products.
     """
 
-    def __init__(self):
-        self.products: List[Product] = [
-            Product(
-                id=1, name="Phone", description="This is a Phone", price=99, quantity=10
-            ),
-            Product(
-                id=2,
-                name="Laptop",
-                description="This is a Laptop",
-                price=1000,
-                quantity=11,
-            ),
-            Product(
-                id=3,
-                name="Tablet",
-                description="This is a Tablet",
-                price=600,
-                quantity=8,
-            ),
-        ]
-
-    def get_all_products(self):
+    def get_all_products(self, db: Session):
         """
         Fetches the complete list of products.
         Returns:
                 List[Products]: A list containing all product records.
         """
-        return self.products
+        # result = db.execute(select(ProductDB))
+        # return result.scalars().all()
+        return db.query(ProductDB).all()
 
-    def get_product_by_id(self, id: int):
+    def get_product_by_id(self, id: int, db: Session):
         """
         Fetches a product using its unique id.
         Args:
             id: The unique integer id of the product.
         Returns:
-            Product: The matching product object if found,otherwrise returns "product not found".
+            Product: The matching product object if found,otherwrise returns NULL.
         """
-        for product in self.products:
-            if product.id == id:
-                return product
-        return "Product not found"
+        # return db.get(ProductDB,id)
+        return db.query(ProductDB).filter(ProductDB.id == id).first()
 
-    def add_product(self, product: Product):
+    def add_product(self, product: Product, db: Session):
         """
         Add a new product to the product list.
         Args:
@@ -57,35 +39,45 @@ class ProductService:
         Returns:
             Product: The product to be added.
         """
-        self.products.append(product)
-        return product
+        db_product = ProductDB(
+            **product.model_dump()
+        )  # convert pydantic model product into database model productdb
+        db.add(db_product)
+        db.commit()
+        db.refresh(db_product)
+        return db_product
 
-    def update_product(self, id: int, product: Product):
+    def update_product(self, id: int, product: Product, db: Session):
         """
         Updates an existing product record.
         Args:
             id: The id of the product to be updated.
             Product: The updated product.
         Returns:
-            Product: The updated prodcut if successfull,otherwise returns "Product not found".
+            Product: The updated prodcut if successfull,otherwise returns NULL.
 
         """
-        for i in range(len(self.products)):
-            if self.products[i].id == id:
-                self.products[i] = product
-                return product
-        return "Product not found"
+        db_product = self.get_product_by_id(id, db)
+        if db_product:
+            db_product.name = product.name
+            db_product.description = product.description
+            db_product.price = product.price
+            db_product.quantity = product.quantity
+            db.commit()
+            db.refresh(db_product)
+        return db_product
 
-    def delete_product(self, id: int):
+    def delete_product(self, id: int, db: Session):
         """
         Removes a product record from the inventory.
         Args:
             id: The id of the product to be deleted.
         Returns:
-            Product: The removed product if successfull, otherwise string "Product not found"
+            Product: The removed product if successfull, otherwise None.
         """
-        for product in self.products:
-            if product.id == id:
-                self.products.remove(product)
-                return product
-        return "Product not found"
+        db_product = self.get_product_by_id(id, db)
+        if db_product:
+            db.delete(db_product)
+            db.commit()
+            return db_product
+        return None
