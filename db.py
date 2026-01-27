@@ -1,8 +1,10 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from dotenv import load_dotenv
+import os
 
-
-db_url = "postgresql://postgres:PGtushar123@localhost:5432/ProductInventory"
+load_dotenv()
+db_url = os.getenv("DATABASE_URL")
 engine = create_engine(db_url)
 session = sessionmaker(autocommit=False, autoflush=True, bind=engine)
 
