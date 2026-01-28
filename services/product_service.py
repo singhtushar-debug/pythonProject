@@ -1,5 +1,5 @@
 from models import Product
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update
 
 # from sqlalchemy import select
@@ -11,16 +11,16 @@ class ProductService:
     Provides business logic for managing products.
     """
 
-    def get_all_products(self, db: Session):
+    async def get_all_products(self, db: AsyncSession):
         """
         Fetches the complete list of products.
         Returns:
                 List[Products]: A list containing all product records.
         """
-        result = db.execute(select(ProductDB))
+        result = await db.execute(select(ProductDB))
         return result.scalars().all()
 
-    def get_product_by_id(self, id: int, db: Session):
+    async def get_product_by_id(self, id: int, db: AsyncSession):
         """
         Fetches a product using its unique id.
         Args:
@@ -28,9 +28,9 @@ class ProductService:
         Returns:
             Product: The matching product object if found,otherwrise returns NULL.
         """
-        return db.get(ProductDB, id)
+        return await db.get(ProductDB, id)
 
-    def add_product(self, product: Product, db: Session):
+    async def add_product(self, product: Product, db: AsyncSession):
         """
         Add a new product to the product list.
         Args:
@@ -42,11 +42,11 @@ class ProductService:
             **product.model_dump()
         )  # convert pydantic model product into database model productdb
         db.add(db_product)
-        db.commit()
-        db.refresh(db_product)
+        await db.commit()
+        await db.refresh(db_product)
         return db_product
 
-    def update_product(self, id: int, product: Product, db: Session):
+    async def update_product(self, id: int, product: Product, db: AsyncSession):
         """
         Updates an existing product record.
         Args:
@@ -63,11 +63,11 @@ class ProductService:
             .values(**product.model_dump())
             .returning(ProductDB)
         )
-        result = db.execute(upd_stmt)
-        db.commit()
+        result = await db.execute(upd_stmt)
+        await db.commit()
         return result.scalar_one_or_none()
 
-    def delete_product(self, id: int, db: Session):
+    async def delete_product(self, id: int, db: AsyncSession):
         """
         Removes a product record from the inventory.
         Args:
@@ -75,9 +75,9 @@ class ProductService:
         Returns:
             Product: The removed product if successfull, otherwise None.
         """
-        db_product = self.get_product_by_id(id, db)
+        db_product = await self.get_product_by_id(id, db)
         if db_product:
-            db.delete(db_product)
-            db.commit()
+            await db.delete(db_product)
+            await db.commit()
             return db_product
         return None

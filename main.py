@@ -1,13 +1,20 @@
 from fastapi import FastAPI, Depends
+from contextlib import asynccontextmanager
 from models import Product
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from services.product_service import ProductService
 from db import get_db, engine
 import database_models
 import uvicorn
 
+
 # create tables
-database_models.Base.metadata.create_all(bind=engine)
+@asynccontextmanager
+async def lifeSpan(app: FastAPI):
+    async with engine.begin() as connection:
+        await connection.run_sync(database_models.Base.metadata.create_all)
+    yield
+
 
 app = FastAPI()
 
@@ -16,36 +23,36 @@ product_service = ProductService()
 
 # home page
 @app.get("/")
-def welcome_home():
+async def welcome_home():
     return "Welcome to the home page"
 
 
 # get all product
 @app.get("/products")
-def get_all_products(db: Session = Depends(get_db)):
-    return product_service.get_all_products(db)
+async def get_all_products(db: AsyncSession = Depends(get_db)):
+    return await product_service.get_all_products(db)
 
 
 # get product by id
 @app.get("/product/{id}")
-def get_product_by_id(id: int, db: Session = Depends(get_db)):
-    return product_service.get_product_by_id(id, db)
+async def get_product_by_id(id: int, db: AsyncSession = Depends(get_db)):
+    return await product_service.get_product_by_id(id, db)
 
 
 # add a new product
 @app.post("/add-product")
-def add_product(product: Product, db: Session = Depends(get_db)):
-    return product_service.add_product(product, db)
+async def add_product(product: Product, db: AsyncSession = Depends(get_db)):
+    return await product_service.add_product(product, db)
 
 
 @app.put("/product")
-def update_product(id: int, product: Product, db: Session = Depends(get_db)):
-    return product_service.update_product(id, product, db)
+async def update_product(id: int, product: Product, db: AsyncSession = Depends(get_db)):
+    return await product_service.update_product(id, product, db)
 
 
 @app.delete("/product/{id}")
-def delete_product_by_id(id: int, db: Session = Depends(get_db)):
-    return product_service.delete_product(id, db)
+async def delete_product_by_id(id: int, db: AsyncSession = Depends(get_db)):
+    return await product_service.delete_product(id, db)
 
 
 def main():
