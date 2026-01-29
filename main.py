@@ -16,7 +16,7 @@ async def lifeSpan(app: FastAPI):
     yield
 
 
-app = FastAPI()
+app = FastAPI(lifespan = lifeSpan)
 
 product_service = ProductService()
 
