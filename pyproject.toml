@@ -8,6 +8,7 @@ dependencies = [
     "asyncpg>=0.31.0",
     "fastapi>=0.128.0",
     "pyjwt>=2.10.1",
+    "python-multipart>=0.0.22",
     "sqlalchemy>=2.0.45",
     "uvicorn>=0.40.0",
 ]
