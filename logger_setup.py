@@ -2,6 +2,15 @@ import logging
 
 
 def init_logger():
+    """
+    Initializes and configures a logger.
+
+    This logger outputs to both the system console and a local file.
+    It uses a consistent fomrat including timestamps,logger name ,level name, and a message.
+
+    Returns:
+        logger: A configured logger instance named "my_logger".
+    """
     logger = logging.getLogger("my_logger")
     logger.setLevel(logging.DEBUG)
 

@@ -44,6 +44,20 @@ Create a `.env` file in the root directory :
 ```
    DATABASE_URL = postgresql+asyncpg://<username>:<password>@localhost:5432/<databasename>
 ```
+## Security and Authentication
+The project implements **OAuth2** and **JWT (JSON Web Token)** for stateless authentication.
+
+   ### Authentication Workflow:
+   * **Login**: User send credentials to `/login`
+   * **Token Generation**: The server validates credentials and returns a JWT.
+   * **Authorized Requests**: The client includes the token in the `Authorization: Bearer <token>` header for protected routes.
+   * **Validation**: The backend decodes the JWT and validates the user's identity before processing request.
+
+## Logging System
+A custom logger is configured using the **logging** module. Logs are formatted to include timestamps,log levels and specific end-point information.
+
+   *  Logs are output to the console for real-time debugging.
+   *  Logs are written to a file (e.g. app.log) for storage and analysis.
 
 ## API documentation
 Once the server is running,you can access the interactive documentation to test the CRUD endpoints:
